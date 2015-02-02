@@ -1,0 +1,4 @@
+
+
+class AdminListSearch(object):
+    pass

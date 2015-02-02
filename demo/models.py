@@ -5,6 +5,10 @@ from jclndbadmin import admin
 # Standard ndb Models
 
 class User(ndb.Model):
+
+    #
+    KEY_FORMAT = ('User', (int, long))
+
     first_name = ndb.StringProperty()
     last_name = ndb.StringProperty()
     email = ndb.StringProperty()
@@ -23,6 +27,8 @@ MCN_STATUS_YOUTUBE_INVITE_ACCEPTED = 1 << 6  # User completed the YT flow
 
 class YouTubeUserInfo(ndb.Model):
 
+    KEY_FORMAT = ('YouTubeUserInfo', basestring)
+
     cancelled = ndb.BooleanProperty()
     binary_statuses = ndb.IntegerProperty()
     statuses_keys = ndb.KeyProperty(
@@ -37,6 +43,7 @@ class YouTubeUserInfo(ndb.Model):
 
 
 class YouTubeUserInfoAdminListFilterByCancelled(admin.AdminListFilter):
+
     def form(self):
         form = admin.AdminListFilterFormSectionRadio(
             {'name': 'Yes', 'value': True},
@@ -102,7 +109,7 @@ class YouTubeUserInfoAdminSearch(admin.AdminListSearch):
         return results
 
 
-class YouTubeUserInfoAdminActionCancel(admin.AdminActionFilter):
+class YouTubeUserInfoAdminActionCancel(admin.AdminBulkAction):
 
     name = 'Cancel MCN Users'
 
@@ -118,7 +125,7 @@ class YouTubeUserInfoAdminActionCancel(admin.AdminActionFilter):
             self._cancel_youtube_user_info(key)
 
 
-class YouTubeUserInfoAdminActionEnable(admin.AdminActionFilter):
+class YouTubeUserInfoAdminActionEnable(admin.AdminBulkAction):
 
     name = 'Enable MCN Users'
 
@@ -134,7 +141,7 @@ class YouTubeUserInfoAdminActionEnable(admin.AdminActionFilter):
             self._cancel_mcn_user(key)
 
 
-class YouTubeUserInfoAdminActionReject(admin.AdminActionFilter):
+class YouTubeUserInfoAdminActionReject(admin.AdminBulkAction):
 
     name = 'Reject MCN Users'
 
