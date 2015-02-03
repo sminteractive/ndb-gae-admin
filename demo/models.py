@@ -56,7 +56,7 @@ class YouTubeUserInfo(ndb.Model):
 class YouTubeUserInfoAdminListFilterByCancelled(admin.AdminListFilter):
 
     def form(self):
-        form = admin.AdminListFilterFormSectionRadio(
+        form = admin.AdminListFilterFormRadio(
             {'name': 'Yes', 'value': True},
             {'name': 'No', 'value': False}
         )
@@ -72,7 +72,7 @@ class YouTubeUserInfoAdminListFilterByCancelled(admin.AdminListFilter):
 
 class YouTubeUserInfoAdminListFilterByBinaryStatus(admin.AdminListFilter):
     def form(self):
-        form = admin.AdminListFilterFormSectionCheckbox(
+        form = admin.AdminListFilterFormCheckbox(
             # Creates a FormCheckbox object
             {'name': 'Flow Started', 'value': 0},
             {'name': 'Google Authenticated', 'value': 1},
