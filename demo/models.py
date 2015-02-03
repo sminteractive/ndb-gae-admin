@@ -1,12 +1,23 @@
 from google.appengine.ext import ndb
-from jclndbadmin import admin
+from admin import admin
 
 
 # Standard ndb Models
 
 class User(ndb.Model):
 
+    # We're going to need that in order to know how to handle URL routing for
+    # this entity model
+    # For example, we'll have to handle these cases:
+    # - List View:
+    #     /admin/User/
+    #     /admin/property_base/user_song-sm-42/user_song
+    # - Detail View:
+    #     /admin/User/42
+    #     /admin/property_base/user_song-sm-42/user_song/1
     #
+    # So we need that KEY_FORMAT in order to register those URL when we start
+    # the app
     KEY_FORMAT = ('User', (int, long))
 
     first_name = ndb.StringProperty()
