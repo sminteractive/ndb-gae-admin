@@ -1,5 +1,7 @@
 import webapp2
 
+from . import adminmodel
+
 
 class ListViewRequestHandler(webapp2.RequestHandler):
 
@@ -20,7 +22,9 @@ class ListViewRequestHandler(webapp2.RequestHandler):
                 ('end_user',)
                 ('property_base', 'user_song-sm-42', 'user_song')
         '''
-        pass
+        list_model = adminmodel.get_model_from_request_handler_parameters(
+            partial_key_items)
+        return webapp2.Response('/'.join(partial_key_items))
 
     def post(self, *key_items):
         pass
@@ -42,4 +46,6 @@ class DetailViewRequestHandler(webapp2.RequestHandler):
                 ('end_user', 42)
                 ('property_base', 'user_song-sm-42', 'user_song', 1)
         '''
-        pass
+        entity_model = adminmodel.get_entity_from_request_handler_parameters(
+            key_items)
+        return webapp2.Response('/'.join(key_items))
