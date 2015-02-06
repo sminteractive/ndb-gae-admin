@@ -10,6 +10,13 @@ import smadmin
 from . import adminmodel
 
 
+def get_detail_view_path_for_entity(entity):
+    return '{}/{}'.format(
+        smadmin.app.routes_prefix,
+        '/'.join([str(e) for e in entity.key.flat()])
+    )
+
+
 class HomeViewRequestHandler(webapp2.RequestHandler):
 
     def get(self):
@@ -66,10 +73,13 @@ class ListViewRequestHandler(webapp2.RequestHandler):
         query = model.query()
         entities, next_cursor, more = query.fetch_page(50, start_cursor=cursor)
 
-        # Save the previous cursor in memcache
+        # Save the previous cursor in memcache so we can go back
         if next_cursor is not None:
             memcache.set(
                 next_cursor.urlsafe(),
+                # The second page's previous page must be marked differently
+                # so we know that we can go back, but also that there's no
+                # cursor needed
                 cursor.urlsafe() if cursor is not None else 0,
                 namespace='smadmin_previous_cursors'
             )
@@ -85,6 +95,11 @@ class ListViewRequestHandler(webapp2.RequestHandler):
             if previous_cursor == 0:
                 previous_cursor = None
 
+        # Build HTTP links
+        links = []
+        for entity in entities:
+            links.append(get_detail_view_path_for_entity(entity))
+
         # Build Template
         path = os.path.join(
             os.path.dirname(__file__),
@@ -98,11 +113,13 @@ class ListViewRequestHandler(webapp2.RequestHandler):
                 'model_name': model.__name__,
                 'admin_model': admin_model,
                 'properties': properties_to_diplay,
-                'entities': entities,
+                'enumerated_entities': enumerate(entities),
+                'links': links,
                 'previous_cursor': previous_cursor,
-                'next_cursor': next_cursor.urlsafe() if next_cursor and more else None,
+                'next_cursor': next_cursor.urlsafe()
+                if next_cursor is not None and more else None,
                 'has_previous': has_previous,
-                'has_next': next_cursor and more,
+                'has_next': next_cursor is not None and more,
             }
         )
         return webapp2.Response(rendered_template)
