@@ -58,3 +58,29 @@ class PropertyBase(ndb.Model):
 
 class EntityWithAncestor(ndb.Model):
     KEY_FORMAT = ('PropertyBase', int, 'EntityWithAncestor', int)
+
+
+# for u in User.query():
+#     u.key.delete()
+# for x in xrange(1, 101):
+#     User(
+#         id=3 * x,
+#         first_name='JC' + str(x),
+#         last_name='Lanoe',
+#         email='jc.lanoe@starmakerinteractive.com',
+#         random_integer_value=42,
+#     ).put()
+#     User(
+#         id=3 * x + 1,
+#         first_name='Alex' + str(x),
+#         last_name='Jolicoeur',
+#         email='alex.jolicoeur@starmakerinteractive.com',
+#         random_integer_value=127,
+#     ).put()
+#     User(
+#         id=3 * x + 2,
+#         first_name='Nicholas' + str(x),
+#         last_name='Charriere',
+#         email='nicholas.charriere@starmakerinteractive.com',
+#         random_integer_value=512,
+#     ).put()

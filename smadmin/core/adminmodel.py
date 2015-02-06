@@ -82,6 +82,10 @@ def get_model_from_request_handler_parameters(parameters):
     return smadmin.app.models_by_partial_key_format.get(_key_format)
 
 
+def get_admin_model_from_model(model):
+    return smadmin.app.registered_models.get(model.__name__)
+
+
 class ModelAdmin(object):
     fields = ()
     filters = ()

@@ -140,4 +140,4 @@ class YouTubeUserInfoAdmin(smadmin.ModelAdmin):
 
 @smadmin.register(models.User)
 class UserAdmin(smadmin.ModelAdmin):
-    pass
+    list_display = ('key', 'first_name', 'last_name', 'email')

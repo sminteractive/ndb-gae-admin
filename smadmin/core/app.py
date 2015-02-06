@@ -2,6 +2,7 @@ from functools import wraps
 import importlib
 import logging
 
+from google.appengine.ext.webapp import template
 import webapp2
 
 
@@ -73,6 +74,9 @@ AdminApplication.allowed_methods = new_allowed_methods
 
 
 app = AdminApplication()
+
+# Register custom Template Filters
+template.register_template_library('smadmin.core.smtemplatefilters')
 
 
 class register(object):

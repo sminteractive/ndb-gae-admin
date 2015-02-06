@@ -1,0 +1,54 @@
+{% extends 'default_layout_view.html' %}
+
+{% block title %}{{ table_name }} Table{% endblock %}
+
+{% block content %}
+<ol class="breadcrumb">
+    <li><a href="{% if app.routes_prefix %}{{ app.routes_prefix }}{% else %}/{% endif %}">Home</a></li>
+    <li class="active">{{ model_name }}</li>
+</ol>
+<nav>
+    <ul class="pagination pagination-lg">
+        <li {% if not has_previous %}class="disabled"{% endif %}>
+            <a aria-label="Previous" href="{% if has_previous %}?{% if previous_cursor %}cursor={{ previous_cursor }}{% endif %}{% else %}#{% endif %}">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        <li {% if not has_next %}class="disabled"{% endif %}>
+            <a aria-label="Next" href="{% if has_next and next_cursor %}?cursor={{ next_cursor }}{% else %}#{% endif %}">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+<div class="table-responsive">
+    <table class="table table-striped">
+    <tr>
+        {% for property in properties %}
+        <th>{{ property }}</th>
+        {% endfor %}
+    </tr>
+    {% for entity in entities %}
+    <tr>
+        {% for property in properties %}
+        <td>{{ entity|getattr:property }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+    </table>
+</div>
+<nav>
+    <ul class="pagination pagination-lg">
+        <li {% if not has_previous %}class="disabled"{% endif %}>
+            <a aria-label="Previous" href="{% if has_previous %}?{% if previous_cursor %}cursor={{ previous_cursor }}{% endif %}{% else %}#{% endif %}">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        <li {% if not has_next %}class="disabled"{% endif %}>
+            <a aria-label="Next" href="{% if has_next and next_cursor %}?cursor={{ next_cursor }}{% else %}#{% endif %}">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+{% endblock %}
