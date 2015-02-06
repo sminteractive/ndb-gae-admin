@@ -14,6 +14,8 @@ automatic_scaling:
 
 
 handlers:
+- url: /admin/static
+  static_dir: smadmin/static
 - url: /.*
   script: demo.app
 
