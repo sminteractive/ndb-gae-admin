@@ -98,7 +98,9 @@ class ListViewRequestHandler(webapp2.RequestHandler):
         # Build HTTP links
         links = []
         for entity in entities:
-            links.append(get_detail_view_path_for_entity(entity))
+            link = get_detail_view_path_for_entity(entity)
+            print link
+            links.append(link)
 
         # Build Template
         path = os.path.join(
@@ -113,8 +115,7 @@ class ListViewRequestHandler(webapp2.RequestHandler):
                 'model_name': model.__name__,
                 'admin_model': admin_model,
                 'properties': properties_to_diplay,
-                'enumerated_entities': enumerate(entities),
-                'links': links,
+                'entities_and_links': zip(entities, links),
                 'previous_cursor': previous_cursor,
                 'next_cursor': next_cursor.urlsafe()
                 if next_cursor is not None and more else None,

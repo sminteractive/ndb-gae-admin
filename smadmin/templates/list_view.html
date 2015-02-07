@@ -28,14 +28,12 @@
         <th>{{ property }}</th>
         {% endfor %}
     </tr>
-    {% for i, entity in enumerated_entities %}
-    <a href="{{ links[forloop.counter0] }}">
+    {% for entity, link in entities_and_links %}
     <tr>
         {% for property in properties %}
-        <td>{{ entity|getattr:property }}</td>
+        <td><a href="{{ link }}">{{ entity|getattr:property }}</a></td>
         {% endfor %}
     </tr>
-    </a>
     {% endfor %}
     </table>
 </div>

@@ -12,4 +12,8 @@ def _getattr(obj, value):
     return getattr(obj, value, None)
 
 
+def getlistitem(list_object, index):
+    return list_object[index]
+
 register.filter('getattr', _getattr)
+register.filter('getlistitem', getlistitem)
