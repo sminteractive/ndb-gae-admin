@@ -81,15 +81,13 @@ template.register_template_library('smadmin.core.smtemplatefilters')
 
 class register(object):
     '''
-    Class decorator to register an ndb Model(s) with an AdminModel
+    Class decorator to register an ndb Model with an AdminModel
     '''
-    def __init__(self, *models):
-        self.models = models
+    def __init__(self, model):
+        self.model = model
 
     def __call__(self, cls):
-        for model in self.models:
-            logging.info('Register Decorator')
-            app.register(cls, model)
+        app.register(cls, self.model)
 
         @wraps(cls)
         def wrapper(*args, **kwargs):

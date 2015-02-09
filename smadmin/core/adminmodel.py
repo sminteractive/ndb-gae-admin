@@ -93,9 +93,17 @@ class ModelAdmin(object):
     list_display = ()
     list_display_links = ('key',)
 
+    # "search" can be defined in a sublass as an instance method.
+    # That method must conform to this signature and reponse
+    # def search(self, search_string):
+    #     # Query entities
+    #     return entities, next_cursor, more
+    search = None
+
     def __init__(self, *args, **kwargs):
         if self.__class__ == ModelAdmin:
             raise AbstractClassError(self.__class__)
+        self.model = kwargs.get('model')
 
     @classmethod
     def generate_routes(cls, model):
