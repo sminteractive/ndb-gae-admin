@@ -153,8 +153,8 @@ class UserAdmin(smadmin.ModelAdmin):
     SEARCH_MODE_LAST_NAME = 'last_name'
     # We use a list to have control over the display order
     search_modes = [
-        # (SEARCH_MODE_DEFAULT, 'Search by ID or email'),  # custom qry w/o curs
-        # (SEARCH_MODE_FIRST_NAME, 'Search by First Name'),  # query with cursor
+        (SEARCH_MODE_DEFAULT, 'Search by ID or email'),  # custom qry w/o curs
+        (SEARCH_MODE_FIRST_NAME, 'Search by First Name'),  # query with cursor
         (SEARCH_MODE_LAST_NAME, 'Search by Last Name'),  # query with cursor
     ]
 
