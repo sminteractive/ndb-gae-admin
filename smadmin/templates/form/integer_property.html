@@ -1,0 +1,6 @@
+<div class="form-group">
+    <label class="col-sm-2 control-label" for="{{ property_name }}">{{ property_name }}</label>
+    <div class="col-sm-10">
+        <input type="text" class="form-control" id="{{ property_name }}" placeholder="Enter a value for {{ property_name }}" value="{{ entity|getattr:property_name }}" {% if readonly %}readonly{% endif %}>
+    </div>
+</div>

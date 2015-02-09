@@ -19,6 +19,8 @@ class User(ndb.Model):
     # the app
     KEY_FORMAT = ('User', int)
 
+    updated_on = ndb.DateTimeProperty(auto_now=True)
+
     first_name = ndb.StringProperty()
     last_name = ndb.StringProperty()
     email = ndb.StringProperty()
@@ -62,7 +64,7 @@ class EntityWithAncestor(ndb.Model):
 
 # for u in User.query():
 #     u.key.delete()
-# for x in xrange(1, 101):
+# for x in xrange(101):
 #     User(
 #         id=3 * x,
 #         first_name='JC' + str(x),

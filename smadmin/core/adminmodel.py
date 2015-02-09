@@ -1,6 +1,8 @@
 import webapp2
+from google.appengine.ext import ndb
 
 import smadmin
+from . import form
 from .errors import AbstractClassError
 from .errors import InvalidModelKeyFormatError
 from .errors import NoModelKeyFormatError
@@ -46,7 +48,7 @@ def get_url_path_components_from_ndb_model(model):
     return path_components
 
 
-def _convert_request_handler_parameters(parameters):
+def _from_url_parameters_to_key_format(parameters):
     converted_parameters = []
     for i, parameter in enumerate(parameters):
         # ID/name part of the component
@@ -60,26 +62,49 @@ def _convert_request_handler_parameters(parameters):
     return tuple(converted_parameters)
 
 
-def get_entity_from_request_handler_parameters(parameters):
-    # We're dealing with a "table", which is represented by a partial key that
-    # ann odd number of elements
-    # (kind1, id1)
-    # (kind1, id1, kind2, id2)
-    # etc
-    assert(len(parameters) % 2 == 0)
-    _key_format = _convert_request_handler_parameters(parameters)
-    return smadmin.app.models_by_partial_key_format.get(_key_format[:-1])
-
-
 def get_model_from_request_handler_parameters(parameters):
     # We're dealing with a "table", which is represented by a partial key that
-    # ann odd number of elements
+    # has an odd number of elements
     # (kind1)
     # (kind1, id1, kind2)
     # etc
     assert(len(parameters) % 2 == 1)
-    _key_format = _convert_request_handler_parameters(parameters)
+    _key_format = _from_url_parameters_to_key_format(parameters)
     return smadmin.app.models_by_partial_key_format.get(_key_format)
+
+
+def _from_url_parameters_to_ndb_flat_key(model, parameters):
+    converted_parameters = []
+    for i, item in enumerate(parameters):
+        if i % 2 == 1:
+            # We have to convert numerical IDs because they're extracted from
+            # the URL path and parsed as strings.
+            #
+            # And we can't automatically parse URL path components that are
+            # castable into integers since we may have ndb Keys like this:
+            # ndb.Key('my_kind', '42')
+            # which would be different than ndb.Key('my_kind', 42)
+            if model.KEY_FORMAT[i] in (long, int):
+                try:
+                    item = int(item)
+                except Exception:
+                    pass
+        converted_parameters.append(item)
+    return converted_parameters
+
+
+def get_entity_from_request_handler_parameters(parameters):
+    # We're dealing with an "entity", which is represented by a full key that
+    # has an even number of elements
+    # (kind1, id1)
+    # (kind1, id1, kind2, id2)
+    # etc
+    assert(len(parameters) % 2 == 0)
+    _key_format = _from_url_parameters_to_key_format(parameters)
+    _model = smadmin.app.models_by_partial_key_format.get(_key_format[:-1])
+    _flat_key = _from_url_parameters_to_ndb_flat_key(_model, parameters)
+    _ndb_key = ndb.Key(flat=_flat_key)
+    return _ndb_key.get()
 
 
 def get_admin_model_from_model(model):
@@ -97,6 +122,14 @@ class ModelAdmin(object):
     list_display = ()
     # Properties that should have a link to the entity view (detail view).
     list_display_links = ('key',)
+
+    # List of properties to display in the detail view.
+    # When the list is empty, the view displays all the properties
+    detail_display = ()
+    # Properties that can't be edited
+    # Note that not matter what a user configures in a ModelAdmin subclass
+    # the entity.key property will always be readonly
+    detail_readonly = ()
 
     # Message to display in the search input
     search_description = 'Search...'
@@ -154,8 +187,6 @@ class ModelAdmin(object):
     def __init__(self, *args, **kwargs):
         if self.__class__ == ModelAdmin:
             raise AbstractClassError(self.__class__)
-        self.model = kwargs.get('model')
-        assert(self.model)
 
     @classmethod
     def generate_routes(cls, model):
@@ -206,3 +237,8 @@ class ModelAdmin(object):
             )
         )
         return routes
+
+    @classmethod
+    def generate_entity_form(cls, entity):
+        entity_form = form.EntityForm(cls, entity)
+        return entity_form

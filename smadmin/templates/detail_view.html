@@ -1,12 +1,13 @@
 {% extends 'default_layout_view.html' %}
 
-{% block title %}{{ table_name }} Entity{% endblock %}
+{% block title %}{{ table_name }} ndb.Key{{ entity_name}}{% endblock %}
 
 {% block content %}
 <ol class="breadcrumb">
     <li><a href="{% if app.routes_prefix %}{{ app.routes_prefix }}{% else %}/{% endif %}">Home</a></li>
-    <li><a href="{% if app.routes_prefix %}{{ app.routes_prefix }}{% else %}/{{ model_name }}{% endif %}">{{ model_name }}</a></li>
-    <li class="active">{{ model_name }}</li>
+    <li><a href="{% if app.routes_prefix %}{{ app.routes_prefix }}{% else %}/{% endif %}/{{ model_name }}">{{ model_name }}</a></li>
+    <li class="active">ndb.Key{{ entity_name }}</li>
 </ol>
 
+{{ entity_form|safe }}
 {% endblock %}
