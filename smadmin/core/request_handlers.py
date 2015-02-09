@@ -302,6 +302,21 @@ class DetailViewRequestHandler(webapp2.RequestHandler):
                 ('end_user', 42)
                 ('property_base', 'user_song-sm-42', 'user_song', 1)
         '''
-        entity_model = adminmodel.get_entity_from_request_handler_parameters(
+        model = adminmodel.get_entity_from_request_handler_parameters(
             key_items)
-        return webapp2.Response('/'.join(key_items))
+        admin_model = adminmodel.get_admin_model_from_model(model)
+        path = os.path.join(
+            os.path.dirname(__file__),
+            '../templates/detail_view.html'
+        )
+        rendered_template = template.render(
+            path,
+            {
+                # App parameters
+                'app': smadmin.app,
+                'model': model,
+                'model_name': model.__name__,
+                'admin_model': admin_model,
+            }
+        )
+        return webapp2.Response(rendered_template)

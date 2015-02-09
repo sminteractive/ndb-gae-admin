@@ -1,0 +1,12 @@
+{% extends 'default_layout_view.html' %}
+
+{% block title %}{{ table_name }} Entity{% endblock %}
+
+{% block content %}
+<ol class="breadcrumb">
+    <li><a href="{% if app.routes_prefix %}{{ app.routes_prefix }}{% else %}/{% endif %}">Home</a></li>
+    <li><a href="{% if app.routes_prefix %}{{ app.routes_prefix }}{% else %}/{{ model_name }}{% endif %}">{{ model_name }}</a></li>
+    <li class="active">{{ model_name }}</li>
+</ol>
+
+{% endblock %}

@@ -68,7 +68,7 @@ def get_entity_from_request_handler_parameters(parameters):
     # etc
     assert(len(parameters) % 2 == 0)
     _key_format = _convert_request_handler_parameters(parameters)
-    return smadmin.app.models_by_partial_key_format.get(_key_format)
+    return smadmin.app.models_by_partial_key_format.get(_key_format[:-1])
 
 
 def get_model_from_request_handler_parameters(parameters):
