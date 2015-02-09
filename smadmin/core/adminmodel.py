@@ -91,7 +91,7 @@ class ModelAdmin(object):
     filters = ()
     actions = ()
     list_display = ()
-    list_display_links = ()
+    list_display_links = ('key',)
 
     def __init__(self, *args, **kwargs):
         if self.__class__ == ModelAdmin:

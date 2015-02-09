@@ -31,7 +31,7 @@
     {% for entity, link in entities_and_links %}
     <tr>
         {% for property in properties %}
-        <td><a href="{{ link }}">{{ entity|getattr:property }}</a></td>
+        <td>{% if properties_with_link and property in properties_with_link %}<a href="{{ link }}">{% endif %}{{ entity|getattr:property }}</a></td>
         {% endfor %}
     </tr>
     {% endfor %}

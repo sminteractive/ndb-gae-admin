@@ -116,6 +116,7 @@ class ListViewRequestHandler(webapp2.RequestHandler):
                 'admin_model': admin_model,
                 'properties': properties_to_diplay,
                 'entities_and_links': zip(entities, links),
+                'properties_with_link': admin_model.list_display_links,
                 'previous_cursor': previous_cursor,
                 'next_cursor': next_cursor.urlsafe()
                 if next_cursor is not None and more else None,
