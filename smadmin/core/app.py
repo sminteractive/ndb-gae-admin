@@ -88,6 +88,7 @@ class register(object):
 
     def __call__(self, cls):
         app.register(cls, self.model)
+        cls.model = self.model
 
         @wraps(cls)
         def wrapper(*args, **kwargs):

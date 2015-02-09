@@ -7,15 +7,34 @@
     <li><a href="{% if app.routes_prefix %}{{ app.routes_prefix }}{% else %}/{% endif %}">Home</a></li>
     <li class="active">{{ model_name }}</li>
 </ol>
+{% if is_search_enabled %}
+<form>
+    <div class="input-group">
+        <input type="text" class="form-control input-lg" name="search" {% if search_value %}value="{{ search_value }}"{% endif %} placeholder="{{ admin_model.search_description }}">
+        <span class="input-group-btn">
+            <button class="btn btn-default input-lg" type="submit">Go!</button>
+        </span>
+    </div>
+    {% if search_modes|length > 0 %}
+    <div class="radio">
+        {% for mode_id, mode_name in search_modes %}
+        <label class="radio-inline">
+            <input type="radio" name="search_mode" id="{{ mode_id }}" value="{{ mode_id }}" {% if current_search_mode and current_search_mode == mode_id %}checked="checked"{% else %}{% if mode_id == 'default' %}checked="checked"{% endif %}{% endif %}> {{ mode_name }}
+        </label>
+        {% endfor %}
+    </div>
+    {% endif %}
+</form>
+{% endif %}
 <nav>
     <ul class="pagination pagination-lg">
         <li {% if not has_previous %}class="disabled"{% endif %}>
-            <a aria-label="Previous" href="{% if has_previous %}?{% if previous_cursor %}cursor={{ previous_cursor }}{% endif %}{% else %}#{% endif %}">
+            {% if has_previous %}<a aria-label="Previous" href="{{ previous_page_qs }}">{% endif %}
                 <span aria-hidden="true">&laquo;</span>
             </a>
         </li>
         <li {% if not has_next %}class="disabled"{% endif %}>
-            <a aria-label="Next" href="{% if has_next and next_cursor %}?cursor={{ next_cursor }}{% else %}#{% endif %}">
+            {% if has_next %}<a aria-label="Next" href="{{ next_page_qs }}">{% endif %}
                 <span aria-hidden="true">&raquo;</span>
             </a>
         </li>
@@ -40,12 +59,12 @@
 <nav>
     <ul class="pagination pagination-lg">
         <li {% if not has_previous %}class="disabled"{% endif %}>
-            <a aria-label="Previous" href="{% if has_previous %}?{% if previous_cursor %}cursor={{ previous_cursor }}{% endif %}{% else %}#{% endif %}">
+            {% if previous_page_qs %}<a aria-label="Previous" href="{{ previous_page_qs }}">{% endif %}
                 <span aria-hidden="true">&laquo;</span>
             </a>
         </li>
         <li {% if not has_next %}class="disabled"{% endif %}>
-            <a aria-label="Next" href="{% if has_next and next_cursor %}?cursor={{ next_cursor }}{% else %}#{% endif %}">
+            {% if next_page_qs %}<a aria-label="Next" href="{{ next_page_qs }}">{% endif %}
                 <span aria-hidden="true">&raquo;</span>
             </a>
         </li>

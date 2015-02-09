@@ -87,11 +87,62 @@ def get_admin_model_from_model(model):
 
 
 class ModelAdmin(object):
+    model = None  # Will be populated when bound to a model
     fields = ()
     filters = ()
     actions = ()
+
+    # List of properties to display in the list view.
+    # When the list is empty, the view displays all the properties
     list_display = ()
+    # Properties that should have a link to the entity view (detail view).
     list_display_links = ('key',)
+
+    # Message to display in the search input
+    search_description = 'Search...'
+
+    # The Admin may use multiple search methods.
+    # By default, search() will be used, but in case a search needs pagination,
+    # the Admin will have to define search modes that will be used to identify
+    # a specific query (because we can't run 2 paginated queries at the same
+    # time because of the cursor management).
+    #
+    # SEARCH_MODE_DEFAULT = 'default'
+    # SEARCH_MODE_FIRST_NAME = 'first_name'
+    # SEARCH_MODE_LAST_NAME = 'last_name'
+    # search_modes = [
+    #     {SEARCH_MODE_DEFAULT: 'by ID or email'},  # key qry + qry w/o cursor
+    #     {SEARCH_MODE_FIRST_NAME: 'by First Name'},  # query with cursor
+    #     {SEARCH_MODE_LAST_NAME: 'by Last Name'},  # query with cursor
+    # ]
+    #
+    # def search(cls, search_string, cursor, mode=None):
+    #     '''
+    #     Search entities for the current ndb Model.
+    #
+    #     Args:
+    #         search_string: string, strng to use to query entities.
+    #
+    #         cursor: ndb.Cursor, used to paginate the results.
+    #
+    #         mode: string (optional), the search method will receive a mode
+    #               parameter if the "search_modes" list defines one or more
+    #               search mode. The string passed will be one of the
+    #               "search_modes" dicts keys.
+    #
+    #     Returns:
+    #         (entities, next_cursor, more)
+    #     '''
+    #     if mode == SEARCH_MODE_DEFAULT:
+    #         ...
+    #     elif mode == SEARCH_MODE_FIRST_NAME:
+    #         ...
+    #     elif mode == SEARCH_MODE_LAST_NAME:
+    #         ...
+    #     else:
+    #         return [], None, False  # (entities, next_cursor, more)
+    #     return entities, next_cursor, more
+    search_modes = []
 
     # "search" can be defined in a sublass as an instance method.
     # That method must conform to this signature and reponse
@@ -104,6 +155,7 @@ class ModelAdmin(object):
         if self.__class__ == ModelAdmin:
             raise AbstractClassError(self.__class__)
         self.model = kwargs.get('model')
+        assert(self.model)
 
     @classmethod
     def generate_routes(cls, model):

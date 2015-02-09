@@ -118,7 +118,7 @@ class YouTubeUserInfoAdminSearch(smadmin.AdminListSearch):
 
 
 # Bind the YouTubeUserInfo model to this admin
-@smadmin.register(models.YouTubeUserInfo, models.EntityWithAncestor)
+@smadmin.register(models.YouTubeUserInfo)
 class YouTubeUserInfoAdmin(smadmin.ModelAdmin):
     # fields = (
     #     {
@@ -138,7 +138,53 @@ class YouTubeUserInfoAdmin(smadmin.ModelAdmin):
     pass
 
 
+@smadmin.register(models.EntityWithAncestor)
+class EntityWithAncestorAdmin(smadmin.ModelAdmin):
+    pass
+
+
 @smadmin.register(models.User)
 class UserAdmin(smadmin.ModelAdmin):
     list_display = ('key', 'first_name', 'last_name', 'email')
     list_display_links = ('key', 'last_name')
+
+    search_description = 'Search by User ID or email'
+
+    SEARCH_MODE_DEFAULT = 'default'
+    SEARCH_MODE_FIRST_NAME = 'first_name'
+    SEARCH_MODE_LAST_NAME = 'last_name'
+    # We use a list to have control over the display order
+    search_modes = [
+        (SEARCH_MODE_DEFAULT, 'by ID or email'),  # key qry + query w/o cursor
+        (SEARCH_MODE_FIRST_NAME, 'by First Name'),  # query with cursor
+        (SEARCH_MODE_LAST_NAME, 'by Last Name'),  # query with cursor
+    ]
+
+    @classmethod
+    def search(cls, search_string, cursor, mode=None):
+        # Paginated search by first name
+        if mode == cls.SEARCH_MODE_FIRST_NAME:
+            query = cls.model.query(cls.model.first_name == search_string)
+            return query.fetch_page(50, start_cursor=cursor)
+        # Paginated search by larst name
+        elif mode == cls.SEARCH_MODE_LAST_NAME:
+            query = cls.model.query(cls.model.last_name == search_string)
+            return query.fetch_page(50, start_cursor=cursor)
+        # Default search - custom query (with potentially multiple small
+        # queries)
+        elif mode == cls.SEARCH_MODE_DEFAULT:
+            searched_entities = []
+            # Search by ID
+            try:
+                user_id = int(search_string)
+                user = cls.model.get_by_id(user_id)
+                if user is not None:
+                    searched_entities.append(user)
+            except Exception:
+                pass
+            for user in cls.model.query(cls.model.email == search_string):
+                searched_entities.append(user)
+            return searched_entities, None, False
+
+        # Default to an empty result
+        return [], None, False
