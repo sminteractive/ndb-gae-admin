@@ -162,6 +162,15 @@ class ListViewRequestHandler(webapp2.RequestHandler):
             has_previous
         )
 
+        # Default search mode (optional)
+        default_search_mode = None
+        if admin_model.search_modes:
+            if 'default' in admin_model.search_modes:
+                default_search_mode = 'default'
+            else:
+                # admin_model.search_modes[0] == ('custom_mode': Search by...)
+                default_search_mode = admin_model.search_modes[0][0]
+
         # Build template
         path = os.path.join(
             os.path.dirname(__file__),
@@ -188,6 +197,7 @@ class ListViewRequestHandler(webapp2.RequestHandler):
                 'is_search_enabled': admin_model.search is not None,
                 'search_value': self.request.GET.get('search'),
                 'current_search_mode': self.request.GET.get('search_mode'),
+                'default_search_mode': default_search_mode,
                 'search_modes': admin_model.search_modes,
             }
         )

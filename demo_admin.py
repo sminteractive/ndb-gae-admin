@@ -148,16 +148,14 @@ class UserAdmin(smadmin.ModelAdmin):
     list_display = ('key', 'first_name', 'last_name', 'email')
     list_display_links = ('key', 'last_name')
 
-    search_description = 'Search by User ID or email'
-
     SEARCH_MODE_DEFAULT = 'default'
     SEARCH_MODE_FIRST_NAME = 'first_name'
     SEARCH_MODE_LAST_NAME = 'last_name'
     # We use a list to have control over the display order
     search_modes = [
-        (SEARCH_MODE_DEFAULT, 'by ID or email'),  # key qry + query w/o cursor
-        (SEARCH_MODE_FIRST_NAME, 'by First Name'),  # query with cursor
-        (SEARCH_MODE_LAST_NAME, 'by Last Name'),  # query with cursor
+        # (SEARCH_MODE_DEFAULT, 'Search by ID or email'),  # custom qry w/o curs
+        # (SEARCH_MODE_FIRST_NAME, 'Search by First Name'),  # query with cursor
+        (SEARCH_MODE_LAST_NAME, 'Search by Last Name'),  # query with cursor
     ]
 
     @classmethod

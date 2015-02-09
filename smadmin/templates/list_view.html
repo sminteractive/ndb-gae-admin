@@ -8,18 +8,25 @@
     <li class="active">{{ model_name }}</li>
 </ol>
 {% if is_search_enabled %}
+{% if search_value %}
 <form>
     <div class="input-group">
-        <input type="text" class="form-control input-lg" name="search" {% if search_value %}value="{{ search_value }}"{% endif %} placeholder="{{ admin_model.search_description }}">
+        <button href="/" class="btn btn-warning input-lg" type="submit">Clear Search</button>
+    </div>
+</form>
+{% endif %}
+<form class="bs-example">
+    <div class="input-group">
         <span class="input-group-btn">
-            <button class="btn btn-default input-lg" type="submit">Go!</button>
+            <button class="btn btn-primary input-lg" type="submit">Go!</button>
         </span>
+        <input type="text" class="form-control input-lg" name="search" {% if search_value %}value="{{ search_value }}"{% endif %} placeholder="{{ admin_model.search_description }}">
     </div>
     {% if search_modes|length > 0 %}
     <div class="radio">
         {% for mode_id, mode_name in search_modes %}
         <label class="radio-inline">
-            <input type="radio" name="search_mode" id="{{ mode_id }}" value="{{ mode_id }}" {% if current_search_mode and current_search_mode == mode_id %}checked="checked"{% else %}{% if mode_id == 'default' %}checked="checked"{% endif %}{% endif %}> {{ mode_name }}
+            <input type="radio" name="search_mode" id="{{ mode_id }}" value="{{ mode_id }}" {% if current_search_mode and current_search_mode == mode_id %}checked="checked"{% else %}{% if mode_id == default_search_mode %}checked="checked"{% endif %}{% endif %}> {{ mode_name }}
         </label>
         {% endfor %}
     </div>
@@ -59,12 +66,12 @@
 <nav>
     <ul class="pagination pagination-lg">
         <li {% if not has_previous %}class="disabled"{% endif %}>
-            {% if previous_page_qs %}<a aria-label="Previous" href="{{ previous_page_qs }}">{% endif %}
+            {% if has_previous %}<a aria-label="Previous" href="{{ previous_page_qs }}">{% endif %}
                 <span aria-hidden="true">&laquo;</span>
             </a>
         </li>
         <li {% if not has_next %}class="disabled"{% endif %}>
-            {% if next_page_qs %}<a aria-label="Next" href="{{ next_page_qs }}">{% endif %}
+            {% if has_next %}<a aria-label="Next" href="{{ next_page_qs }}">{% endif %}
                 <span aria-hidden="true">&raquo;</span>
             </a>
         </li>
