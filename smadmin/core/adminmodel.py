@@ -111,7 +111,7 @@ def get_admin_model_from_model(model):
     return smadmin.app.registered_models.get(model.__name__)
 
 
-class ModelAdmin(object):
+class AdminModel(object):
     model = None  # Will be populated when bound to a model
     fields = ()
     filters = ()
@@ -127,7 +127,7 @@ class ModelAdmin(object):
     # When the list is empty, the view displays all the properties
     detail_display = ()
     # Properties that can't be edited
-    # Note that not matter what a user configures in a ModelAdmin subclass
+    # Note that not matter what a user configures in a AdminModel subclass
     # the entity.key property will always be readonly
     detail_readonly = ()
 
@@ -185,7 +185,7 @@ class ModelAdmin(object):
     search = None
 
     def __init__(self, *args, **kwargs):
-        if self.__class__ == ModelAdmin:
+        if self.__class__ == AdminModel:
             raise AbstractClassError(self.__class__)
 
     @classmethod

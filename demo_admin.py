@@ -1,4 +1,4 @@
-import smadmin
+import smadmin as admin
 import demo_models as models
 
 
@@ -95,8 +95,8 @@ import demo_models as models
 
 
 # Bind the YouTubeUserInfo model to this admin
-@smadmin.register(models.YouTubeUserInfo)
-class YouTubeUserInfoAdmin(smadmin.ModelAdmin):
+@admin.register(models.YouTubeUserInfo)
+class YouTubeUserInfoAdmin(admin.AdminModel):
     # fields = (
     #     {
     #         'property': 'cancelled'
@@ -115,15 +115,15 @@ class YouTubeUserInfoAdmin(smadmin.ModelAdmin):
     pass
 
 
-@smadmin.register(models.EntityWithAncestor)
-class EntityWithAncestorAdmin(smadmin.ModelAdmin):
+@admin.register(models.EntityWithAncestor)
+class EntityWithAncestorAdmin(admin.AdminModel):
     pass
 
 
-@smadmin.register(models.User)
-class UserAdmin(smadmin.ModelAdmin):
-    list_display = ('key', 'first_name', 'last_name', 'email')
-    list_display_links = ('key', 'last_name')
+@admin.register(models.User)
+class UserAdmin(admin.AdminModel):
+    list_display = ('first_name', 'last_name', 'email')
+    # list_display_links = ('key', 'last_name')
 
     detail_display = (
         'updated_on',
@@ -156,8 +156,8 @@ class UserAdmin(smadmin.ModelAdmin):
         elif mode == cls.SEARCH_MODE_LAST_NAME:
             query = cls.model.query(cls.model.last_name == search_string)
             return query.fetch_page(50, start_cursor=cursor)
-        # Default search - custom query (with potentially multiple small
-        # queries)
+        # Default search
+        # Custom query with potentially multiple small queries (so no cursor)
         elif mode == cls.SEARCH_MODE_DEFAULT:
             searched_entities = []
             # Search by ID
