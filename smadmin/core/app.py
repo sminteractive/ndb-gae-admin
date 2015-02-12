@@ -14,6 +14,11 @@ class AdminApplication(webapp2.WSGIApplication):
         self.models_by_key_format = {}
         self.routes_prefix = ''
 
+    def get_table_names(self):
+        table_names = [k[0] for k in self.models_by_partial_key_format]
+        table_names.sort()
+        return table_names
+
     def register(self, model_admin, model):
         logging.info('REGISTERING Admin Model {} with {}'.format(
             model_admin.__name__,
@@ -28,10 +33,26 @@ class AdminApplication(webapp2.WSGIApplication):
         for route in model_admin.generate_routes(model):
             self.router.add(route)
 
+    def _register_home_route(self):
+        '''
+        Register the Home route.
+        This is subject to change depending on what we end up doing in the home
+        page.
+        '''
+        self.router.add(
+            webapp2.Route(
+                r'{prefix}'.format(prefix=self.routes_prefix),
+                handler='smadmin.core.request_handlers.HomeViewRequestHandler',
+                name='smadmin-home-view',
+                methods=['GET'],
+                schemes=['http', 'https']
+            )
+        )
+
     def discover_admins(self, *modules):
         '''
-        Modules that contain ModelAdmin classes and that need to be imported so
-        we can register them.
+        Modules that contain ModelAdmin classes need to be imported so we can
+        register them.
         '''
         for module in modules:
             try:
@@ -40,6 +61,8 @@ class AdminApplication(webapp2.WSGIApplication):
             except Exception, e:
                 logging.exception(e)
                 pass
+        # At this point, all Model Admins are suppose to be registered
+        self._register_home_route()
 
 
 # Enabled PATCH method

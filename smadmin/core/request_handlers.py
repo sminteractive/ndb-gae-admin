@@ -1,6 +1,21 @@
-import webapp2
+import os
 
+import webapp2
+from google.appengine.ext.webapp import template
+
+import smadmin
 from . import adminmodel
+
+
+class HomeViewRequestHandler(webapp2.RequestHandler):
+
+    def get(self):
+        path = os.path.join(
+            os.path.dirname(__file__),
+            '../templates/home_view.html'
+        )
+        rendered_template = template.render(path, {'app': smadmin.app})
+        return webapp2.Response(rendered_template)
 
 
 class ListViewRequestHandler(webapp2.RequestHandler):
