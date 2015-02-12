@@ -2,52 +2,6 @@ import smadmin as admin
 import demo_models as models
 
 
-# class YouTubeUserInfoAdminListFilterByCancelled(smadmin.AdminListFilter):
-#     def form(self):
-#         form = smadmin.AdminListFilterFormRadio(
-#             {'name': 'Yes', 'value': True},
-#             {'name': 'No', 'value': False}
-#         )
-#         return form
-
-#     def query(self, form):
-#         radio_checked = form.get_checked()
-#         query = models.YouTubeUserInfo.query(
-#             models.YouTubeUserInfo.canceled == radio_checked.value
-#         )
-#         return query
-
-
-# class YouTubeUserInfoAdminListFilterByBinaryStatus(smadmin.AdminListFilter):
-#     def form(self):
-#         form = smadmin.AdminListFilterFormCheckbox(
-#             # Creates a FormCheckbox object
-#             {'name': 'Flow Started', 'value': 0},
-#             {'name': 'Google Authenticated', 'value': 1},
-#             {'name': 'Personal Info Complete', 'value': 2},
-#             {'name': 'Contract Presented', 'value': 4},
-#             {'name': 'Contract Signed', 'value': 16},
-#             {'name': 'User Rejected', 'value': 8},
-#             {'name': 'Invite Sent', 'value': 32},
-#             {'name': 'Invite Accepted', 'value': 64},
-#             identifier='mcn_statuses',
-#             name='MCN Statuses',
-#         )
-#         return form
-
-#     def query(self, form):
-#         form_section = form.get_section('MCN Statuses')
-#         mcn_status_value = 0
-#         for checkbox in form_section:
-#             if checkbox.checked:
-#                 mcn_status_value = mcn_status_value | checkbox.value
-
-#         query = models.YouTubeUserInfo.query(
-#             models.YouTubeUserInfo.binary_statuses == mcn_status_value
-#         )
-#         return query
-
-
 # class YouTubeUserInfoAdminActionCancel(smadmin.AdminBulkAction):
 
 #     name = 'Cancel MCN Users'
@@ -97,27 +51,34 @@ import demo_models as models
 # Bind the YouTubeUserInfo model to this admin
 @admin.register(models.YouTubeUserInfo)
 class YouTubeUserInfoAdmin(admin.AdminModel):
-    # fields = (
-    #     {
-    #         'property': 'cancelled'
-    #     }
-    # )
-    # filters = (
-    #     YouTubeUserInfoAdminListFilterByCancelled,
-    #     YouTubeUserInfoAdminListFilterByBinaryStatus,
-    # )
-    # actions = (
-    #     # YouTubeUserInfoAdminActionCancel,
-    #     # YouTubeUserInfoAdminActionEnable,
-    # )
-    # list_display = ('id', 'cancelled')
-    # list_display_links = ('id',)
     pass
 
 
 @admin.register(models.EntityWithAncestor)
 class EntityWithAncestorAdmin(admin.AdminModel):
     pass
+
+
+class UserFilterByEmail(admin.ListFilter):
+    title = 'Search by ID or email'
+
+    def form(self):
+        return form.Form(
+            form.InputGoup(
+                form.Input(name='search_user_by_email')
+            )
+        )
+
+    def filter(self, data, cursor):
+        pass
+
+
+class UserFilterByFirstName(admin.ListFilter):
+    title = 'Search by First Name'
+
+
+class UserFilterByLastName(admin.ListFilter):
+    title = 'Search by Last Name'
 
 
 @admin.register(models.User)
@@ -136,14 +97,11 @@ class UserAdmin(admin.AdminModel):
         'updated_on',
     )
 
-    SEARCH_MODE_DEFAULT = 'default'
-    SEARCH_MODE_FIRST_NAME = 'first_name'
-    SEARCH_MODE_LAST_NAME = 'last_name'
+    search_enabled = False
+
     # We use a list to have control over the display order
-    search_modes = [
-        (SEARCH_MODE_DEFAULT, 'Search by ID or email'),  # custom qry w/o curs
-        (SEARCH_MODE_FIRST_NAME, 'Search by First Name'),  # query with cursor
-        (SEARCH_MODE_LAST_NAME, 'Search by Last Name'),  # query with cursor
+    filters = [
+        UserFilterByEmail
     ]
 
     @classmethod

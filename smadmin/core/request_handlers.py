@@ -77,7 +77,7 @@ class ListViewRequestHandler(webapp2.RequestHandler):
                         self.request.GET.get('search_mode'))
                 )
         if has_previous:
-            if self.request.GET.get('search_mode'):
+            if self.request.GET.get('search'):
                 previous_page_qs_items.append(
                     'search={}'.format(self.request.GET.get('search'))
                 )
@@ -203,7 +203,7 @@ class ListViewRequestHandler(webapp2.RequestHandler):
         )
         return webapp2.Response(rendered_template)
 
-    def search_entities(self, admin_model, cursor):
+    def filter_entities(self, admin_model, cursor):
         # Get the search string sent from the HTML form in the list view
         search_string = self.request.GET.get('search')
 
@@ -265,8 +265,8 @@ class ListViewRequestHandler(webapp2.RequestHandler):
             except Exception:
                 cursor = None
 
-        if self.request.GET.get('search'):
-            entities, next_cursor, more = self.search_entities(
+        if self.request.GET.get('filter'):
+            entities, next_cursor, more = self.filter_entities(
                 admin_model,
                 cursor
             )

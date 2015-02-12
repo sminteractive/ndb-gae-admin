@@ -1,7 +1,7 @@
 import webapp2
 from google.appengine.ext import ndb
 
-import smadmin
+import smadmin as admin
 from . import form
 from .errors import AbstractClassError
 from .errors import InvalidModelKeyFormatError
@@ -70,7 +70,7 @@ def get_model_from_request_handler_parameters(parameters):
     # etc
     assert(len(parameters) % 2 == 1)
     _key_format = _from_url_parameters_to_key_format(parameters)
-    return smadmin.app.models_by_partial_key_format.get(_key_format)
+    return admin.app.models_by_partial_key_format.get(_key_format)
 
 
 def _from_url_parameters_to_ndb_flat_key(model, parameters):
@@ -101,14 +101,14 @@ def get_entity_from_request_handler_parameters(parameters):
     # etc
     assert(len(parameters) % 2 == 0)
     _key_format = _from_url_parameters_to_key_format(parameters)
-    _model = smadmin.app.models_by_partial_key_format.get(_key_format[:-1])
+    _model = admin.app.models_by_partial_key_format.get(_key_format[:-1])
     _flat_key = _from_url_parameters_to_ndb_flat_key(_model, parameters)
     _ndb_key = ndb.Key(flat=_flat_key)
     return _ndb_key.get()
 
 
 def get_admin_model_from_model(model):
-    return smadmin.app.registered_models.get(model.__name__)
+    return admin.app.registered_models.get(model.__name__)
 
 
 class AdminModel(object):
@@ -206,15 +206,15 @@ class AdminModel(object):
         routes.append(
             webapp2.Route(
                 r'{prefix}/{path}'.format(
-                    prefix=smadmin.app.routes_prefix,
+                    prefix=admin.app.routes_prefix,
                     # Only get the last kind in the path component:
                     # (... , 'kind_n', id_n) -> 'kind_n'
                     # so we can access it at
                     # GET /admin/kind_n
                     path=r'/'.join(_path_components[-2:-1])
                 ),
-                handler='smadmin.core.request_handlers.ListViewRequestHandler',
-                name='smadmin-list-view',
+                handler='admin.core.request_handlers.ListViewRequestHandler',
+                name='admin-list-view',
                 methods=['GET'],
                 schemes=['http', 'https']
             )
@@ -223,15 +223,15 @@ class AdminModel(object):
         routes.append(
             webapp2.Route(
                 r'{prefix}/{path}'.format(
-                    prefix=smadmin.app.routes_prefix,
+                    prefix=admin.app.routes_prefix,
                     # Only get the last kind in the path component:
                     # (... , 'kind_n', id_n) -> 'kind_n'
                     # so we can access it at
                     # GET /admin/kind_n
                     path=r'/'.join(_path_components)
                 ),
-                handler='smadmin.core.request_handlers.DetailViewRequestHandler',
-                name='smadmin-detail-view',
+                handler='admin.core.request_handlers.DetailViewRequestHandler',
+                name='admin-detail-view',
                 methods=['GET'],
                 schemes=['http', 'https']
             )

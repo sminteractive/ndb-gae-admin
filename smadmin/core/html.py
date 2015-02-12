@@ -1,21 +1,67 @@
 import os
+from copy import deepcopy
 
 from google.appengine.ext import ndb
 from google.appengine.ext.webapp import template
 
-from .errors import AbstractClassError
+
+class HtmlMarkup(object):
+
+    TEMPLATE_PATH = None
+
+    def __init__(self, *form_items, **optional_parameters):
+        self._template_variables = optional_parameters
+        self.children = [item for item in form_items]
+
+    def __str__(self):
+        _content = ''.join([str(child) for child in self.children])
+        _template_variables = deepcopy(self._template_variables)
+        _template_variables['content'] = _content
+
+        return template.render(
+            os.path.join(
+                os.path.dirname(__file__),
+                self.__class__.TEMPLATE_PATH
+            ),
+            _template_variables
+        )
 
 
-class EntityForm(object):
+class Form(HtmlMarkup):
+
+    TEMPLATE_PATH = '../templates/html/form.html'
+
+
+class InputGroup(HtmlMarkup):
+
+    TEMPLATE_PATH = '../templates/html/input_group.html'
+
+
+class Input(HtmlMarkup):
+
+    TEMPLATE_PATH = '../templates/html/input.html'
+
+    def __init__(self, *form_items, **optional_parameters):
+        super(Input, self).__init__(*form_items)
+        self._template_variables = {
+            'type': 'text',
+            'name': None,
+            'value': None,
+            'placeholder': None
+        }
+        self._template_variables.update(optional_parameters)
+
+
+class EntityForm(Form):
     TEMPLATE_PATH = os.path.join(
         os.path.dirname(__file__),
         '../templates/form/form.html'
     )
 
     def __init__(self, admin_model, entity):
+        super(EntityForm, self).__init__()
         self.admin_model = admin_model
         self.entity = entity
-        self.form = []
 
         if self.admin_model.detail_display:
             for k in self.admin_model.detail_display:
@@ -63,10 +109,8 @@ class EntityForm(object):
         )
 
 
-class PropertyForm(object):
+class PropertyForm(Form):
     def __init__(self, entity, property_name, *args, **kwargs):
-        if self.__class__ == PropertyForm:
-            raise AbstractClassError(self.__class__)
         self.entity = entity
         self.property_name = property_name
         self.readonly = 'readonly' in kwargs and kwargs['readonly']
