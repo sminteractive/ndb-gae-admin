@@ -6,13 +6,14 @@ from google.appengine.api import memcache
 from google.appengine.ext.webapp import template
 from google.appengine.datastore.datastore_query import Cursor
 
-import smadmin
+import smadmin as admin
 from . import adminmodel
+from . import adminsearch
 
 
 def get_detail_view_path_for_entity(entity):
     return '{}/{}'.format(
-        smadmin.app.routes_prefix,
+        admin.app.routes_prefix,
         '/'.join([str(e) for e in entity.key.flat()])
     )
 
@@ -24,7 +25,7 @@ class HomeViewRequestHandler(webapp2.RequestHandler):
             os.path.dirname(__file__),
             '../templates/home_view.html'
         )
-        rendered_template = template.render(path, {'app': smadmin.app})
+        rendered_template = template.render(path, {'app': admin.app})
         return webapp2.Response(rendered_template)
 
 
@@ -162,14 +163,22 @@ class ListViewRequestHandler(webapp2.RequestHandler):
             has_previous
         )
 
-        # Default search mode (optional)
-        default_search_mode = None
-        if admin_model.search_modes:
-            if 'default' in admin_model.search_modes:
-                default_search_mode = 'default'
-            else:
-                # admin_model.search_modes[0] == ('custom_mode': Search by...)
-                default_search_mode = admin_model.search_modes[0][0]
+        search_forms = []
+        if admin_model.default_search_enabled:
+            # Instantiate the default ListViewSearch if not disabled in the
+            # ModelAdmin. Enabled by default.
+            default_search = adminsearch.DefaultListViewSearch(
+                **self.request.GET
+            )
+            default_form = default_search.form()
+            search_forms.append(default_form)
+        for search_module_class in admin_model.search_modules:
+            # Instantiate the ListViewSearch
+            search_module = search_module_class(**self.request.GET)
+            # Generate the search form defined in the ListViewSearch
+            search_form = search_module.form()
+            # Save the form so we can render it in the List View template
+            search_forms.append(search_form)
 
         # Build template
         path = os.path.join(
@@ -180,7 +189,7 @@ class ListViewRequestHandler(webapp2.RequestHandler):
             path,
             {
                 # App parameters
-                'app': smadmin.app,
+                'app': admin.app,
                 'model': model,
                 'model_name': model.__name__,
                 'admin_model': admin_model,
@@ -197,13 +206,12 @@ class ListViewRequestHandler(webapp2.RequestHandler):
                 'is_search_enabled': admin_model.search is not None,
                 'search_value': self.request.GET.get('search'),
                 'current_search_mode': self.request.GET.get('search_mode'),
-                'default_search_mode': default_search_mode,
-                'search_modes': admin_model.search_modes,
+                'search_forms': search_forms,
             }
         )
         return webapp2.Response(rendered_template)
 
-    def filter_entities(self, admin_model, cursor):
+    def search_entities(self, admin_model, cursor):
         # Get the search string sent from the HTML form in the list view
         search_string = self.request.GET.get('search')
 
@@ -265,8 +273,8 @@ class ListViewRequestHandler(webapp2.RequestHandler):
             except Exception:
                 cursor = None
 
-        if self.request.GET.get('filter'):
-            entities, next_cursor, more = self.filter_entities(
+        if self.request.GET.get('search'):
+            entities, next_cursor, more = self.search_entities(
                 admin_model,
                 cursor
             )
@@ -317,7 +325,7 @@ class DetailViewRequestHandler(webapp2.RequestHandler):
             path,
             {
                 # App parameters
-                'app': smadmin.app,
+                'app': admin.app,
                 'entity': entity,
                 'model_name': entity.__class__.__name__,
                 'entity_name': str(entity.key.flat()),

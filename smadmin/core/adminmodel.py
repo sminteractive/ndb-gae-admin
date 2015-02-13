@@ -2,7 +2,7 @@ import webapp2
 from google.appengine.ext import ndb
 
 import smadmin as admin
-from . import form
+from . import html
 from .errors import AbstractClassError
 from .errors import InvalidModelKeyFormatError
 from .errors import NoModelKeyFormatError
@@ -131,8 +131,8 @@ class AdminModel(object):
     # the entity.key property will always be readonly
     detail_readonly = ()
 
-    # Message to display in the search input
-    search_description = 'Search...'
+    # Enable the default search
+    default_search_enabled = True
 
     # The Admin may use multiple search methods.
     # By default, search() will be used, but in case a search needs pagination,
@@ -175,7 +175,7 @@ class AdminModel(object):
     #     else:
     #         return [], None, False  # (entities, next_cursor, more)
     #     return entities, next_cursor, more
-    search_modes = []
+    search_modules = []
 
     # "search" can be defined in a sublass as an instance method.
     # That method must conform to this signature and reponse
@@ -213,7 +213,7 @@ class AdminModel(object):
                     # GET /admin/kind_n
                     path=r'/'.join(_path_components[-2:-1])
                 ),
-                handler='admin.core.request_handlers.ListViewRequestHandler',
+                handler='smadmin.core.request_handlers.ListViewRequestHandler',
                 name='admin-list-view',
                 methods=['GET'],
                 schemes=['http', 'https']
@@ -230,7 +230,7 @@ class AdminModel(object):
                     # GET /admin/kind_n
                     path=r'/'.join(_path_components)
                 ),
-                handler='admin.core.request_handlers.DetailViewRequestHandler',
+                handler='smadmin.core.request_handlers.DetailViewRequestHandler',
                 name='admin-detail-view',
                 methods=['GET'],
                 schemes=['http', 'https']
@@ -240,5 +240,5 @@ class AdminModel(object):
 
     @classmethod
     def generate_entity_form(cls, entity):
-        entity_form = form.EntityForm(cls, entity)
+        entity_form = html.EntityForm(cls, entity)
         return entity_form

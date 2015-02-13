@@ -59,13 +59,13 @@ class EntityWithAncestorAdmin(admin.AdminModel):
     pass
 
 
-class UserFilterByEmail(admin.ListFilter):
+class SearchUserByEmail(admin.ListViewSearch):
     title = 'Search by ID or email'
 
     def form(self):
-        return form.Form(
-            form.InputGoup(
-                form.Input(name='search_user_by_email')
+        return admin.html.Form(
+            admin.html.InputGoup(
+                admin.html.Input(name='search_user_by_email')
             )
         )
 
@@ -73,11 +73,11 @@ class UserFilterByEmail(admin.ListFilter):
         pass
 
 
-class UserFilterByFirstName(admin.ListFilter):
+class SearchUserByFirstName(admin.ListViewSearch):
     title = 'Search by First Name'
 
 
-class UserFilterByLastName(admin.ListFilter):
+class SearchUserByLastName(admin.ListViewSearch):
     title = 'Search by Last Name'
 
 
@@ -97,38 +97,37 @@ class UserAdmin(admin.AdminModel):
         'updated_on',
     )
 
-    search_enabled = False
+    # default_search_enabled = False
 
-    # We use a list to have control over the display order
-    filters = [
-        UserFilterByEmail
-    ]
+    # search_modules = [
+    #     SearchUserByEmail
+    # ]
 
-    @classmethod
-    def search(cls, search_string, cursor, mode=None):
-        # Paginated search by first name
-        if mode == cls.SEARCH_MODE_FIRST_NAME:
-            query = cls.model.query(cls.model.first_name == search_string)
-            return query.fetch_page(50, start_cursor=cursor)
-        # Paginated search by larst name
-        elif mode == cls.SEARCH_MODE_LAST_NAME:
-            query = cls.model.query(cls.model.last_name == search_string)
-            return query.fetch_page(50, start_cursor=cursor)
-        # Default search
-        # Custom query with potentially multiple small queries (so no cursor)
-        elif mode == cls.SEARCH_MODE_DEFAULT:
-            searched_entities = []
-            # Search by ID
-            try:
-                user_id = int(search_string)
-                user = cls.model.get_by_id(user_id)
-                if user is not None:
-                    searched_entities.append(user)
-            except Exception:
-                pass
-            for user in cls.model.query(cls.model.email == search_string):
-                searched_entities.append(user)
-            return searched_entities, None, False
+    # @classmethod
+    # def search(cls, search_string, cursor, mode=None):
+    #     # Paginated search by first name
+    #     if mode == cls.SEARCH_MODE_FIRST_NAME:
+    #         query = cls.model.query(cls.model.first_name == search_string)
+    #         return query.fetch_page(50, start_cursor=cursor)
+    #     # Paginated search by larst name
+    #     elif mode == cls.SEARCH_MODE_LAST_NAME:
+    #         query = cls.model.query(cls.model.last_name == search_string)
+    #         return query.fetch_page(50, start_cursor=cursor)
+    #     # Default search
+    #     # Custom query with potentially multiple small queries (so no cursor)
+    #     elif mode == cls.SEARCH_MODE_DEFAULT:
+    #         searched_entities = []
+    #         # Search by ID
+    #         try:
+    #             user_id = int(search_string)
+    #             user = cls.model.get_by_id(user_id)
+    #             if user is not None:
+    #                 searched_entities.append(user)
+    #         except Exception:
+    #             pass
+    #         for user in cls.model.query(cls.model.email == search_string):
+    #             searched_entities.append(user)
+    #         return searched_entities, None, False
 
-        # Default to an empty result
-        return [], None, False
+    #     # Default to an empty result
+    #     return [], None, False

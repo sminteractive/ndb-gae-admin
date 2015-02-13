@@ -1,31 +1,64 @@
 from . import html
+from .errors import AbstractClassError
 
 
 class ListViewSearch(object):
-    def __init__(self, post_params):
-        self._form = self.form(**post_params)
+    title = None
+    name = None
 
-    def form(self, **post_params):
+    def __init__(self, **GET_params):
+        if self.__class__ == ListViewSearch:
+            raise AbstractClassError(self.__class__)
+
+        for attribute in (self.__class__.title, self.__class__.name):
+            if not attribute:
+                raise ValueError(
+                    '{}.{} attribute must be a string, and cannot be None or '
+                    'empty'.format(
+                        self.__class__.__name__,
+                        attribute.__name__
+                    )
+                )
+
+        self._form = self.form(**GET_params)
+        self._form.children.append(
+            html.Input(type='hidden', name=self.__class__.name)
+        )
+
+    def form(self, **GET_params):
         raise NotImplementedError
 
-    def filter(self, data, cursor):
+    def search(self, data, cursor):
         raise NotImplementedError
 
 
 class DefaultListViewSearch(ListViewSearch):
     title = 'Search'
+    name = 'default-search'
 
-    def form(self, **post_params):
+    def form(self, **GET_params):
         return html.Form(
-            html.InputGoup(
+            html.Div(
+                html.Span(
+                    html.Button(
+                        'Go!',
+                        class_='btn btn-primary input-lg',
+                        type_='submit',
+                    ),
+                    class_='input-group-btn'
+                ),
                 html.Input(
-                    name='search_default',
-                    placeholder='Search by ID or GQL',
-                    value=post_params.get('search_default')
-                )
+                    name='{}_value'.format(self.__class__.name),
+                    placeholder=self.__class__.title,
+                    value=GET_params.get(
+                        '{}_value'.format(self.__class__.name)
+                    ),
+                    class_='form-control input-lg'
+                ),
+                class_='input-group',
             )
         )
 
-    def filter(self, data, cursor):
+    def search(self, data, cursor):
         if 'search_default' in data:
             pass

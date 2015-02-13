@@ -7,23 +7,11 @@
     <li><a href="{% if app.routes_prefix %}{{ app.routes_prefix }}{% else %}/{% endif %}">Home</a></li>
     <li class="active">{{ model_name }}</li>
 </ol>
-{% if is_search_enabled %}
-{% if search_value %}
-<form>
-    <div class="input-group">
-        <button href="/" class="btn btn-warning input-lg" type="submit">Clear Search</button>
-    </div>
-</form>
-{% endif %}
-<form>
-    <div class="input-group">
-        <span class="input-group-btn">
-            <button class="btn btn-primary input-lg" type="submit">Go!</button>
-        </span>
-        <input type="text" class="form-control input-lg" name="search" {% if search_value %}value="{{ search_value }}"{% endif %} placeholder="{{ admin_model.search_description }}">
-    </div>
-</form>
-{% endif %}
+
+{% for search_form in search_forms %}
+{{ search_form|safe }}
+{% endfor %}
+
 <nav>
     <ul class="pagination pagination-lg">
         <li {% if not has_previous %}class="disabled"{% endif %}>

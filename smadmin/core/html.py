@@ -8,9 +8,11 @@ from google.appengine.ext.webapp import template
 class HtmlMarkup(object):
 
     TEMPLATE_PATH = None
+    default_html_attributes = {}
 
     def __init__(self, *form_items, **optional_parameters):
-        self._template_variables = optional_parameters
+        self._template_variables = self.__class__.default_html_attributes
+        self._template_variables.update(optional_parameters)
         self.children = [item for item in form_items]
 
     def __str__(self):
@@ -27,29 +29,39 @@ class HtmlMarkup(object):
         )
 
 
+class Div(HtmlMarkup):
+
+    TEMPLATE_PATH = '../templates/html/div.html'
+    default_html_attributes = {'class_': None}
+
+
+class Span(HtmlMarkup):
+
+    TEMPLATE_PATH = '../templates/html/span.html'
+    default_html_attributes = {'class_': None}
+
+
+class Button(HtmlMarkup):
+
+    TEMPLATE_PATH = '../templates/html/button.html'
+    default_html_attributes = {'type_': 'text', 'class_': None}
+
+
 class Form(HtmlMarkup):
 
     TEMPLATE_PATH = '../templates/html/form.html'
 
 
-class InputGroup(HtmlMarkup):
-
-    TEMPLATE_PATH = '../templates/html/input_group.html'
-
-
 class Input(HtmlMarkup):
 
     TEMPLATE_PATH = '../templates/html/input.html'
-
-    def __init__(self, *form_items, **optional_parameters):
-        super(Input, self).__init__(*form_items)
-        self._template_variables = {
-            'type': 'text',
-            'name': None,
-            'value': None,
-            'placeholder': None
-        }
-        self._template_variables.update(optional_parameters)
+    default_html_attributes = {
+        'type_': 'text',
+        'name': None,
+        'value': None,
+        'placeholder': None,
+        'class_': None
+    }
 
 
 class EntityForm(Form):
