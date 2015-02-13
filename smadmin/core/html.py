@@ -11,7 +11,8 @@ class HtmlMarkup(object):
     default_html_attributes = {}
 
     def __init__(self, *form_items, **optional_parameters):
-        self._template_variables = self.__class__.default_html_attributes
+        self._template_variables = deepcopy(
+            self.__class__.default_html_attributes)
         self._template_variables.update(optional_parameters)
         self.children = [item for item in form_items]
 

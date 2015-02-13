@@ -167,18 +167,16 @@ class ListViewRequestHandler(webapp2.RequestHandler):
         if admin_model.default_search_enabled:
             # Instantiate the default ListViewSearch if not disabled in the
             # ModelAdmin. Enabled by default.
-            default_search = adminsearch.DefaultListViewSearch(
+            default_list_searche = adminsearch.DefaultListViewSearch(
                 **self.request.GET
             )
-            default_form = default_search.form()
+            default_form = default_list_searche._form
             search_forms.append(default_form)
-        for search_module_class in admin_model.search_modules:
+        for list_search in admin_model.list_searches:
             # Instantiate the ListViewSearch
-            search_module = search_module_class(**self.request.GET)
-            # Generate the search form defined in the ListViewSearch
-            search_form = search_module.form()
+            search = list_search(**self.request.GET)
             # Save the form so we can render it in the List View template
-            search_forms.append(search_form)
+            search_forms.append(search._form)
 
         # Build template
         path = os.path.join(

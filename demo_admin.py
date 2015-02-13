@@ -99,7 +99,7 @@ class UserAdmin(admin.AdminModel):
 
     # default_search_enabled = False
 
-    # search_modules = [
+    # list_searches = [
     #     SearchUserByEmail
     # ]
 

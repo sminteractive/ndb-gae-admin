@@ -175,7 +175,7 @@ class AdminModel(object):
     #     else:
     #         return [], None, False  # (entities, next_cursor, more)
     #     return entities, next_cursor, more
-    search_modules = []
+    list_searches = []
 
     # "search" can be defined in a sublass as an instance method.
     # That method must conform to this signature and reponse

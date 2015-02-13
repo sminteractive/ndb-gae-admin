@@ -22,7 +22,10 @@ class ListViewSearch(object):
 
         self._form = self.form(**GET_params)
         self._form.children.append(
-            html.Input(type='hidden', name=self.__class__.name)
+            html.Div(
+                html.Input(type_='hidden', name='search'),
+                class_='input-group',
+            )
         )
 
     def form(self, **GET_params):
@@ -34,7 +37,7 @@ class ListViewSearch(object):
 
 class DefaultListViewSearch(ListViewSearch):
     title = 'Search'
-    name = 'default-search'
+    name = 'default_search'
 
     def form(self, **GET_params):
         return html.Form(
