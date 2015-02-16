@@ -9,6 +9,7 @@ from google.appengine.datastore.datastore_query import Cursor
 import smadmin as admin
 from . import adminmodel
 from . import adminsearch
+from errors import EmptySearchError
 
 
 def get_detail_view_path_for_entity(entity):
@@ -69,24 +70,18 @@ class ListViewRequestHandler(webapp2.RequestHandler):
             )
         if next_cursor is not None and more:
             if self.request.GET.get('search'):
-                next_page_qs_items.append(
-                    'search={}'.format(self.request.GET.get('search'))
-                )
-            if self.request.GET.get('search_mode'):
-                next_page_qs_items.append(
-                    'search_mode={}'.format(
-                        self.request.GET.get('search_mode'))
-                )
+                for qs_key, qs_value in self.request.GET.iteritems():
+                    if qs_key != 'cursor':
+                        next_page_qs_items.append(
+                            '{}={}'.format(qs_key, qs_value)
+                        )
         if has_previous:
             if self.request.GET.get('search'):
-                previous_page_qs_items.append(
-                    'search={}'.format(self.request.GET.get('search'))
-                )
-            if self.request.GET.get('search_mode'):
-                previous_page_qs_items.append(
-                    'search_mode={}'.format(
-                        self.request.GET.get('search_mode'))
-                )
+                for qs_key, qs_value in self.request.GET.iteritems():
+                    if qs_key != 'cursor':
+                        previous_page_qs_items.append(
+                            '{}={}'.format(qs_key, qs_value)
+                        )
 
         # Default links to None so the template know that it should not enable
         # the previous / next page
@@ -162,7 +157,10 @@ class ListViewRequestHandler(webapp2.RequestHandler):
             previous_cursor_url_safe,
             has_previous
         )
+        print previous_page_qs, next_page_qs
 
+        # Lookup the admin model to know which search tool should be displayed
+        # (if any was specified)
         search_forms = []
         if admin_model.default_search_enabled:
             # Instantiate the default ListViewSearch if not disabled in the
@@ -201,7 +199,8 @@ class ListViewRequestHandler(webapp2.RequestHandler):
                 'previous_page_qs': previous_page_qs,
                 'next_page_qs': next_page_qs,
                 # Search parameters
-                'is_search_enabled': admin_model.search is not None,
+                'is_search_enabled': admin_model.default_search_enabled or
+                admin_model.list_searches,
                 'search_value': self.request.GET.get('search'),
                 'current_search_mode': self.request.GET.get('search_mode'),
                 'search_forms': search_forms,
@@ -209,22 +208,22 @@ class ListViewRequestHandler(webapp2.RequestHandler):
         )
         return webapp2.Response(rendered_template)
 
-    def search_entities(self, admin_model, cursor):
+    def _search_entities(self, admin_model, cursor):
         # Get the search string sent from the HTML form in the list view
         search_string = self.request.GET.get('search')
 
-        # Get the optional search mode
-        search_mode = self.request.GET.get('search_mode')
+        list_view_search = admin_model.get_available_search_by_name(
+            search_string
+        )
 
-        # No op if the search string is missing or empty
-        if admin_model.search is None or not search_string:
-            return [], None, False  # entities, next_cursor, more
+        if list_view_search is None:
+            return [], None, False
 
         # Call the search method defined in the admin
-        _search_return_values = admin_model.search(
-            search_string,
+        _search_return_values = list_view_search.search(
+            admin_model.model,
+            self.request.GET,
             cursor,
-            search_mode
         )
 
         # Check that _search_return_values matches the expected return values
@@ -232,11 +231,14 @@ class ListViewRequestHandler(webapp2.RequestHandler):
                 or len(_search_return_values) != 3:
             raise ValueError(
                 'The search() method defined in the Admin Model {} must return'
-                '3 values (entities, next_cursor, more)'
+                ' 3 values: entities, next_cursor, more. (Received {})'.format(
+                    admin_model.__name__,
+                    _search_return_values
+                )
             )
         return _search_return_values
 
-    def list_entities(self, model, cursor):
+    def _list_entities(self, model, cursor):
         # Get the entities
         query = model.query()
         return query.fetch_page(50, start_cursor=cursor)
@@ -258,6 +260,7 @@ class ListViewRequestHandler(webapp2.RequestHandler):
                 ('end_user',)
                 ('property_base', 'user_song-sm-42', 'user_song')
         '''
+        self.partial_key_items = partial_key_items
         model = adminmodel.get_model_from_request_handler_parameters(
             partial_key_items)
         admin_model = adminmodel.get_admin_model_from_model(model)
@@ -272,12 +275,18 @@ class ListViewRequestHandler(webapp2.RequestHandler):
                 cursor = None
 
         if self.request.GET.get('search'):
-            entities, next_cursor, more = self.search_entities(
-                admin_model,
-                cursor
-            )
+            try:
+                entities, next_cursor, more = self._search_entities(
+                    admin_model,
+                    cursor
+                )
+            # The search is invalid and can't be processed
+            # Redirect to the default list view (without search options)
+            except EmptySearchError:
+                uri = self.uri_for('admin-list-view', *self.partial_key_items)
+                return webapp2.redirect(uri)
         else:
-            entities, next_cursor, more = self.list_entities(model, cursor)
+            entities, next_cursor, more = self._list_entities(model, cursor)
 
         return self._create_response(
             model,

@@ -83,7 +83,7 @@ class SearchUserByLastName(admin.ListViewSearch):
 
 @admin.register(models.User)
 class UserAdmin(admin.AdminModel):
-    list_display = ('first_name', 'last_name', 'email')
+    list_display = ('key', 'first_name', 'last_name', 'email')
     # list_display_links = ('key', 'last_name')
 
     detail_display = (

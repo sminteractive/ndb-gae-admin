@@ -6,6 +6,7 @@ from . import html
 from .errors import AbstractClassError
 from .errors import InvalidModelKeyFormatError
 from .errors import NoModelKeyFormatError
+from . import adminsearch
 
 
 def get_url_path_components_from_ndb_model(model):
@@ -112,7 +113,7 @@ def get_admin_model_from_model(model):
 
 
 class AdminModel(object):
-    model = None  # Will be populated when bound to a model
+    model = None  # Populated when bound to a model
     fields = ()
     filters = ()
     actions = ()
@@ -177,13 +178,6 @@ class AdminModel(object):
     #     return entities, next_cursor, more
     list_searches = []
 
-    # "search" can be defined in a sublass as an instance method.
-    # That method must conform to this signature and reponse
-    # def search(self, search_string):
-    #     # Query entities
-    #     return entities, next_cursor, more
-    search = None
-
     def __init__(self, *args, **kwargs):
         if self.__class__ == AdminModel:
             raise AbstractClassError(self.__class__)
@@ -220,6 +214,14 @@ class AdminModel(object):
             )
         )
         # Add the route for the detail view
+        print '{prefix}/{path}'.format(
+                    prefix=admin.app.routes_prefix,
+                    # Only get the last kind in the path component:
+                    # (... , 'kind_n', id_n) -> 'kind_n'
+                    # so we can access it at
+                    # GET /admin/kind_n
+                    path=r'/'.join(_path_components[-2:-1])
+                )
         routes.append(
             webapp2.Route(
                 r'{prefix}/{path}'.format(
@@ -242,3 +244,16 @@ class AdminModel(object):
     def generate_entity_form(cls, entity):
         entity_form = html.EntityForm(cls, entity)
         return entity_form
+
+    @classmethod
+    def get_available_search_by_name(cls, name):
+        '''
+        '''
+        assert(name)
+        for list_view_search_class in cls.list_searches:
+            if list_view_search_class.name == name:
+                return list_view_search_class
+        if cls.default_search_enabled \
+                and adminsearch.DefaultListViewSearch.name == name:
+            return adminsearch.DefaultListViewSearch
+        return None
