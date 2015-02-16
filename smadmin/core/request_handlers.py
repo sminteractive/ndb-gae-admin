@@ -254,6 +254,17 @@ class ListViewRequestHandler(webapp2.RequestHandler):
         return _search_return_values
 
     def _list_entities(self, model, cursor):
+        '''
+        Request Handler internal method that queries entities for a given
+        model, optionally with pagination.
+
+        Args:
+            model: ndb.Model class
+            cursor: ndb.Cursor instance
+
+        Returns:
+            list, list of entities that are instances of the "model" ndb.Model.
+        '''
         # Get the entities
         query = model.query()
         return query.fetch_page(50, start_cursor=cursor)
