@@ -185,14 +185,15 @@ class AdminModel(object):
     @classmethod
     def generate_routes(cls, model):
         '''
-        Generate a list of webapp2 Routes based on the current Model Admin
+        Generate a list of webapp2 Routes based on the current ``AdminModel``
         configuration.
 
         Arguments:
-            model: ndb.Model class object.
+            model:
+                ``ndb.Model`` class object.
 
         Returned Values:
-            routes: list of webapp2 Routes.
+            list of webapp2 Routes.
         '''
         routes = []
         _path_components = get_url_path_components_from_ndb_model(model)
@@ -234,12 +235,25 @@ class AdminModel(object):
 
     @classmethod
     def generate_entity_form(cls, entity):
+        '''
+        '''
         entity_form = html.EntityForm(cls, entity)
         return entity_form
 
     @classmethod
     def get_available_search_by_name(cls, name):
         '''
+        Inspect the ``AdminModel`` class and return a ListViewSearch class that
+        matches the given name, if that ListViewSearch is in cls.list_searches.
+
+        Args:
+            name:
+                string, name of the ``ListViewSearch`` class that is returned
+                if it's present in ``cls.list_searches``.
+
+        Returns:
+            ListViewSearch class:
+                None if the class is not in ``cls.list_searches``.
         '''
         assert(name)
         for list_view_search_class in cls.list_searches:
