@@ -123,13 +123,7 @@ allowed_methods = AdminApplication.allowed_methods
 new_allowed_methods = allowed_methods.union(('PATCH',))
 AdminApplication.allowed_methods = new_allowed_methods
 
-'''
-Test
-'''
-app = AdminApplication()  # plop
-'''
-Test 2
-'''
+app = AdminApplication()
 
 # Register custom Template Filters
 template.register_template_library('smadmin.core.smtemplatefilters')
