@@ -312,9 +312,6 @@ class ListViewRequestHandler(webapp2.RequestHandler):
             more
         )
 
-    def post(self, *key_items):
-        pass
-
 
 class DetailViewRequestHandler(webapp2.RequestHandler):
     '''
