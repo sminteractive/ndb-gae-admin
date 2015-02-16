@@ -55,9 +55,27 @@ def get_url_path_components_from_ndb_model(model):
     return path_components
 
 
-def get_key_format_from_url_parameters(parameters):
+def get_key_format_from_request_handler_parameters(parameters):
     '''
+    Convert a list of ndb.Key items into a ``KEY_FORMAT``-like tuple.
 
+    Here are a few examples:
+
+    * ``('User',)`` -> ``('User',)``
+    * ``('User', 42)`` -> ``('User', int)``
+    * ``('PropertyBase', '1-sm-42', 'UserSong', 5312321)`` ->
+      ``('PropertyBase', basestring, 'UserSong', int)``
+
+    This function comes handy in the List View and Detail View Request Handlers
+    when webapp2 passes a list of ``key_items`` parsed from the URL path.
+
+    Args:
+        parameters:
+            List of items that represent an ndb flat Key (``('User', 42)``) or
+            partial flat Key (``('User',)``).
+
+    Returns:
+        A ``KEY_FORMAT``-like tuple.
     '''
     converted_parameters = []
     for i, parameter in enumerate(parameters):
@@ -73,18 +91,52 @@ def get_key_format_from_url_parameters(parameters):
 
 
 def get_model_from_request_handler_parameters(parameters):
-    # We're dealing with a "table", which is represented by a partial key that
-    # has an odd number of elements
-    # (kind1)
-    # (kind1, id1, kind2)
-    # etc
+    '''
+    The List View Request Handler needs to convert the parsed URL parameters
+    into an ndb.Model class so we can list all its entities.
+
+    For example:
+
+    * ``('User',)`` -> ``<class models.User>``
+    * ``('PropertyBase', '1-sm-42', 'UserSong', 12)``
+        -> ``<class models.UserSong>``
+
+    Args:
+        parameters:
+            List of items that represent a partial flat Key (``('User',)``).
+
+    Returns:
+        ``<class ndb.Model>`` class object.
+    '''
     assert(len(parameters) % 2 == 1)
-    _key_format = get_key_format_from_url_parameters(parameters)
+    _key_format = get_key_format_from_request_handler_parameters(parameters)
     return admin.app.models_by_partial_key_format.get(_key_format)
 
 
-def _from_url_parameters_to_ndb_flat_key(model, parameters):
-    converted_parameters = []
+def get_entity_from_request_handler_parameters(parameters):
+    '''
+    The Detail View Request Handler needs to convert the parsed URL parameters
+    into an ndb.Model instance so we can display and edit its properties.
+
+    For example:
+
+    * ``('User', 42)`` -> Entity that has the ``ndb.Key('User', 42)`` key.
+    * ``('PropertyBase', '1-sm-42', 'UserSong', 12)``
+        -> Entity that has the
+        ``ndb.Key('PropertyBase', '1-sm-42', 'UserSong', 12)`` key.
+
+    Args:
+        parameters:
+            List of items that represent a flat Key (``('User', 42)``).
+
+    Returns:
+        ndb Entity.
+    '''
+    assert(len(parameters) % 2 == 0)
+    _key_format = get_key_format_from_request_handler_parameters(parameters)
+    _model = admin.app.models_by_partial_key_format.get(_key_format[:-1])
+    _flat_key = []
+
     for i, item in enumerate(parameters):
         if i % 2 == 1:
             # We have to convert numerical IDs because they're extracted from
@@ -94,34 +146,70 @@ def _from_url_parameters_to_ndb_flat_key(model, parameters):
             # castable into integers since we may have ndb Keys like this:
             # ndb.Key('my_kind', '42')
             # which would be different than ndb.Key('my_kind', 42)
-            if model.KEY_FORMAT[i] in (long, int):
+            if _model.KEY_FORMAT[i] in (long, int):
                 try:
                     item = int(item)
                 except Exception:
                     pass
-        converted_parameters.append(item)
-    return converted_parameters
+        _flat_key.append(item)
 
-
-def get_entity_from_request_handler_parameters(parameters):
-    # We're dealing with an "entity", which is represented by a full key that
-    # has an even number of elements
-    # (kind1, id1)
-    # (kind1, id1, kind2, id2)
-    # etc
-    assert(len(parameters) % 2 == 0)
-    _key_format = get_key_format_from_url_parameters(parameters)
-    _model = admin.app.models_by_partial_key_format.get(_key_format[:-1])
-    _flat_key = _from_url_parameters_to_ndb_flat_key(_model, parameters)
     _ndb_key = ndb.Key(flat=_flat_key)
     return _ndb_key.get()
 
 
 def get_admin_model_from_model(model):
+    '''
+    Shorthand to map an ``ndb.Model`` class to the ``AdminModel`` class that
+    registered it.
+
+    Args:
+        model:
+            ``ndb.Model`` class.
+
+    Returns:
+        ``AdminModel`` class.
+    '''
     return admin.app.registered_models.get(model.__name__)
 
 
 class AdminModel(object):
+    '''
+    The AdminModel is the central element in the admin to display and
+    manipulate ndb Models.
+
+    It is responsible for a few things:
+    * Register webapp2 Routes when the app launches for the first time
+    * List entities and control their appearance
+    * Register the search modules that can be used in the List View
+    * Register the bulk actions that can used in the List View
+
+    An important fact about the ``AdminModel`` class is that it will never get
+    instatiated.
+
+    That design can be explained by 2 things:
+    * An ``AdminModel`` class will only be bound once to an ndb.Model, so the
+      concept of _instance_ does not really apply in this case.
+    * Even if we could instantiate ``AdminModel`` classes every time we need to
+      to render the List and Detail View, directly defining class attributes
+      makes the code more readable and compact.
+
+    To define an ``AdminModel``, you can simply do this:
+
+    ::
+
+        MyAdmin(admin,AdminModel):
+            pass
+
+    The next step will be to bind an ``ndb.Model`` class to this admin:
+
+    ::
+
+        @admin.register(MyNdbModel)
+        MyAdmin(admin.AdminModel):
+            pass
+
+    At this point, you can start using the admin with the default settings.
+    '''
     model = None  # Populated when bound to a model
     fields = ()
     filters = ()
