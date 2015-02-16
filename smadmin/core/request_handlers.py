@@ -157,7 +157,6 @@ class ListViewRequestHandler(webapp2.RequestHandler):
             previous_cursor_url_safe,
             has_previous
         )
-        print previous_page_qs, next_page_qs
 
         # Lookup the admin model to know which search tool should be displayed
         # (if any was specified)

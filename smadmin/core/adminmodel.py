@@ -214,14 +214,6 @@ class AdminModel(object):
             )
         )
         # Add the route for the detail view
-        print '{prefix}/{path}'.format(
-                    prefix=admin.app.routes_prefix,
-                    # Only get the last kind in the path component:
-                    # (... , 'kind_n', id_n) -> 'kind_n'
-                    # so we can access it at
-                    # GET /admin/kind_n
-                    path=r'/'.join(_path_components[-2:-1])
-                )
         routes.append(
             webapp2.Route(
                 r'{prefix}/{path}'.format(

@@ -95,7 +95,6 @@ class DefaultListViewSearch(ListViewSearch):
         # If we haven't found any entity by ID, search using a GQL Query
         if not results:
             try:
-                print search_value
                 query = model.gql('WHERE ' + search_value)
                 count = 50
                 itr = query.iter(
@@ -117,12 +116,6 @@ class DefaultListViewSearch(ListViewSearch):
             except Exception:
                 pass
             else:
-                print '\n\n\n\n\n'
-                print next_cursor, more
-                print '\n\n\n\n\n'
                 return results, next_cursor, more
 
-        print '\n\n\n\n\n'
-        print results
-        print '\n\n\n\n\n'
         return results, None, False
