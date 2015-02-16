@@ -269,7 +269,7 @@ class ListViewRequestHandler(webapp2.RequestHandler):
             Complex Keys (list all the SM songs that belong to user 42):
             /admin/property_base/user_song-sm-42/user_song
 
-        Params:
+        Args:
             partial_key_items: flat ndb Key.
                 Examples:
                 ('end_user',)
@@ -326,7 +326,7 @@ class DetailViewRequestHandler(webapp2.RequestHandler):
             Simple Key: /admin/end_user/42
             Complex Keys: /admin/property_base/user_song-sm-42/user_song/1
 
-        Params:
+        Args:
             key_items: flat ndb Key.
                 Examples:
                 ('end_user', 42)
