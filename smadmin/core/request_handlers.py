@@ -12,7 +12,17 @@ from . import adminsearch
 from errors import EmptySearchError
 
 
-def get_detail_view_path_for_entity(entity):
+def get_detail_view_uri_for_entity(entity):
+    '''
+    Convert an ndb.Model instance into a path that opens a Detail View for that
+    entity.
+
+    Args:
+        entity: <object ndb.Model>, instance of an ndb.Model (sub)class.
+
+    Returns:
+        string, path that opens a Detail View for that entity.
+    '''
     return '{}/{}'.format(
         admin.app.routes_prefix,
         '/'.join([str(e) for e in entity.key.flat()])
@@ -20,6 +30,9 @@ def get_detail_view_path_for_entity(entity):
 
 
 class HomeViewRequestHandler(webapp2.RequestHandler):
+    '''
+    Request Handler that generates and renders the Admin Home View.
+    '''
 
     def get(self):
         path = os.path.join(
@@ -31,6 +44,9 @@ class HomeViewRequestHandler(webapp2.RequestHandler):
 
 
 class ListViewRequestHandler(webapp2.RequestHandler):
+    '''
+    Request Handler that generates and renders the Admin List View.
+    '''
 
     def _create_query_strings(
             self,
@@ -147,7 +163,7 @@ class ListViewRequestHandler(webapp2.RequestHandler):
         # Build entities links
         links = []
         for entity in entities:
-            link = get_detail_view_path_for_entity(entity)
+            link = get_detail_view_uri_for_entity(entity)
             links.append(link)
 
         # Create query string parameters for the previous and next page
@@ -301,6 +317,9 @@ class ListViewRequestHandler(webapp2.RequestHandler):
 
 
 class DetailViewRequestHandler(webapp2.RequestHandler):
+    '''
+    Request Handler that generates and renders the Admin Detail View.
+    '''
 
     def get(self, *key_items):
         '''
