@@ -11,23 +11,29 @@ from . import adminsearch
 
 def get_url_path_components_from_ndb_model(model):
     '''
-    A key format can look like this:
-    ('User', (int, long))
-    ('YouTubeUserInfo', basestring)
+    A ``KEY_FORMAT`` can look like this:
 
-    Or represent an ndb Model with ancestor(s):
-    ('property_base', (basestring), 'user_song', (int, long))
+    ``('User', (int, long))``
 
-    This function takes that KEY_FORMAT and returns a list of components that
-    can be used to create a webapp2 Route.
+    ``('YouTubeUserInfo', basestring)``
 
-    Arguments:
-        model: ndb.Model class that defines a KEY_FORMAT atribute, which is an
-               iterable that represents a flat ndb Key. For example:
-               ('YouTubeUserInfo', basestring)
+    A ``KEY_FORMAT`` can also represent an ``ndb.Model`` entity with
+    ancestor(s):
 
-    Returned Values:
-        path_components: ('(YouTubeUserInfo)', '(\d+)')
+    ``('property_base', (basestring), 'user_song', (int, long))``
+
+    This function takes that ``KEY_FORMAT`` and returns a list of components
+    that can be used to create a webapp2 Route.
+
+    Args:
+        model:
+            ``ndb.Model`` class that defines a ``KEY_FORMAT`` attribute, which
+            is an iterable that represents a flat ndb Key.
+            For example: ``('YouTubeUserInfo', basestring)``
+
+    Returns:
+        path_components:
+            ``('(YouTubeUserInfo)', '(\d+)')``
     '''
     # The ndb model used in the admin must have a KEY_FORMAT attribute
     if getattr(model, 'KEY_FORMAT', None) is None:
@@ -49,7 +55,10 @@ def get_url_path_components_from_ndb_model(model):
     return path_components
 
 
-def _from_url_parameters_to_key_format(parameters):
+def get_key_format_from_url_parameters(parameters):
+    '''
+
+    '''
     converted_parameters = []
     for i, parameter in enumerate(parameters):
         # ID/name part of the component
@@ -70,7 +79,7 @@ def get_model_from_request_handler_parameters(parameters):
     # (kind1, id1, kind2)
     # etc
     assert(len(parameters) % 2 == 1)
-    _key_format = _from_url_parameters_to_key_format(parameters)
+    _key_format = get_key_format_from_url_parameters(parameters)
     return admin.app.models_by_partial_key_format.get(_key_format)
 
 
@@ -101,7 +110,7 @@ def get_entity_from_request_handler_parameters(parameters):
     # (kind1, id1, kind2, id2)
     # etc
     assert(len(parameters) % 2 == 0)
-    _key_format = _from_url_parameters_to_key_format(parameters)
+    _key_format = get_key_format_from_url_parameters(parameters)
     _model = admin.app.models_by_partial_key_format.get(_key_format[:-1])
     _flat_key = _from_url_parameters_to_ndb_flat_key(_model, parameters)
     _ndb_key = ndb.Key(flat=_flat_key)
