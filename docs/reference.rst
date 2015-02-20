@@ -1,8 +1,7 @@
 API Reference
 =============
 
-Core modules
-------------
+Hello
 
 .. toctree::
    :maxdepth: 2
