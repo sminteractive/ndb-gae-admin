@@ -9,7 +9,8 @@
         <title>StarMaker Admin - {% block title %}{% endblock %}</title>
 
         <!-- Bootstrap core CSS -->
-        <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+        <link href="/admin/static/css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Custom styles for this template -->
         <link href="/admin/static/css/dashboard.css" rel="stylesheet">
@@ -35,7 +36,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button> -->
-                    <a class="navbar-brand" href="#">StarMaker Admin</a>
+                    <a class="navbar-brand" href="{% if app.routes_prefix %}{{ app.routes_prefix }}{% else %}/{% endif %}">StarMaker Admin</a>
                 </div>
                 <!-- <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
@@ -61,7 +62,7 @@
                     </ul>
                 </div>
                 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-                    <h1 class="page-header">Dashboard</h1>
+                    {% block content %}{% endblock %}
                 </div>
             </div>
         </div>
@@ -69,8 +70,10 @@
         <!-- Bootstrap core JavaScript
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-        <script src="http://getbootstrap.com/dist/js/bootstrap.min.js"></script>
+        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="http://getbootstrap.com/dist/js/bootstrap.min.js"></script> -->
+        <script src="/admin/static/js/jquery.min.js"></script>
+        <script src="/admin/static/js/bootstrap.min.js"></script>
         <script src="http://getbootstrap.com/assets/js/docs.min.js"></script>
         <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
         <script src="http://getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>

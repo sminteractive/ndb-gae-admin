@@ -1,0 +1,59 @@
+{% extends 'default_layout_view.html' %}
+
+{% block title %}{{ table_name }} Table{% endblock %}
+
+{% block content %}
+<ol class="breadcrumb">
+    <li><a href="{% if app.routes_prefix %}{{ app.routes_prefix }}{% else %}/{% endif %}">Home</a></li>
+    <li class="active">{{ model_name }}</li>
+</ol>
+
+{% for search_form in search_forms %}
+{{ search_form|safe }}
+{% endfor %}
+
+<nav>
+    <ul class="pagination pagination-lg">
+        <li {% if not has_previous %}class="disabled"{% endif %}>
+            {% if has_previous %}<a aria-label="Previous" href="{{ previous_page_qs }}">{% endif %}
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        <li {% if not has_next %}class="disabled"{% endif %}>
+            {% if has_next %}<a aria-label="Next" href="{{ next_page_qs }}">{% endif %}
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+<div class="table-responsive">
+    <table class="table table-striped">
+    <tr>
+        {% for property in properties %}
+        <th>{{ property }}</th>
+        {% endfor %}
+    </tr>
+    {% for entity, link in entities_and_links %}
+    <tr>
+        {% for property in properties %}
+        <td>{% if properties_with_link and property in properties_with_link %}<a href="{{ link }}">{% endif %}{{ entity|getattr:property }}</a></td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+    </table>
+</div>
+<nav>
+    <ul class="pagination pagination-lg">
+        <li {% if not has_previous %}class="disabled"{% endif %}>
+            {% if has_previous %}<a aria-label="Previous" href="{{ previous_page_qs }}">{% endif %}
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        <li {% if not has_next %}class="disabled"{% endif %}>
+            {% if has_next %}<a aria-label="Next" href="{{ next_page_qs }}">{% endif %}
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+{% endblock %}

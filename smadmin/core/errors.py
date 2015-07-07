@@ -21,7 +21,16 @@ class NoModelKeyFormatError(Exception):
 class InvalidModelKeyFormatError(Exception):
     def __init__(self, model, *args, **kwargs):
         self.message = 'ndb Model {} must have a KEY_FORMAT property that ' \
-            'has an even number'.format(model.__name__)
+            'has an even number of items'.format(model.__name__)
+
+    def __str__(self):
+        return repr(self.message)
+
+
+class EmptySearchError(Exception):
+    def __init__(self, *args, **kwargs):
+        self.message = 'The List View Search could not be processed because ' \
+            'it doesn\'t have enough info'
 
     def __str__(self):
         return repr(self.message)

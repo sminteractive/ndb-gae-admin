@@ -5,8 +5,8 @@ from google.appengine.ext import ndb
 
 class User(ndb.Model):
 
-    # We're going to need that in order to know how to handle URL routing for
-    # this entity model
+    # We're going to need a KEY_FORMAT in order to know how to handle URL
+    # routing for this entity model
     # For example, we'll have to handle these cases:
     # - List View:
     #     /admin/User/
@@ -18,6 +18,8 @@ class User(ndb.Model):
     # So we need that KEY_FORMAT in order to register those URL when we start
     # the app
     KEY_FORMAT = ('User', int)
+
+    updated_on = ndb.DateTimeProperty(auto_now=True)
 
     first_name = ndb.StringProperty()
     last_name = ndb.StringProperty()
